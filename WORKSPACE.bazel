@@ -134,13 +134,19 @@ tink_cc_deps_init()
 
 # SHELL for rlwe-based homomorphic encryption.
 # https://github.com/google/shell-encryption
-http_archive(
+#http_archive(
+#    name = "com_github_google_shell-encryption",
+#    sha256 = "0a3a48cb61445e5a12b42f9787560f91e849fcea90ee3f26cafa64e5367748d7",
+#    strip_prefix = "shell-encryption-3b1bdfad1bf67a1414cce7bc0684a3cffd231aa3",
+#    urls = [
+#        "https://github.com/google/shell-encryption/archive/3b1bdfad1bf67a1414cce7bc0684a3cffd231aa3.zip",
+#    ],
+#)
+
+# Include local SHELL directory
+local_repository(
     name = "com_github_google_shell-encryption",
-    sha256 = "0a3a48cb61445e5a12b42f9787560f91e849fcea90ee3f26cafa64e5367748d7",
-    strip_prefix = "shell-encryption-3b1bdfad1bf67a1414cce7bc0684a3cffd231aa3",
-    urls = [
-        "https://github.com/google/shell-encryption/archive/3b1bdfad1bf67a1414cce7bc0684a3cffd231aa3.zip",
-    ],
+    path = "../shell-encryption",
 )
 
 # Eigen
@@ -164,3 +170,20 @@ http_archive(
         "https://github.com/google/highway/archive/3af6ba57bf82c861870f92f0483149439007d652.zip",
     ],
 )
+
+# VeriSimplePIR foreign CC rule
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "rules_foreign_cc",
+    # TODO: Get the latest sha256 value from a bazel debug message or the latest 
+    #       release on the releases page: https://github.com/bazelbuild/rules_foreign_cc/releases
+    #
+    # sha256 = "...",
+    strip_prefix = "rules_foreign_cc-51152aac9d6d8b887802a47ec08a1a37ef2c4885",
+    url = "https://github.com/bazelbuild/rules_foreign_cc/archive/51152aac9d6d8b887802a47ec08a1a37ef2c4885.tar.gz",
+)
+
+load("@rules_foreign_cc//foreign_cc:repositories.bzl", "rules_foreign_cc_dependencies")
+
+rules_foreign_cc_dependencies()

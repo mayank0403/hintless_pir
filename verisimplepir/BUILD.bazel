@@ -1,0 +1,16 @@
+load("@rules_foreign_cc//foreign_cc:defs.bzl", "make")
+
+#bazel_dep(name = "gsl", version = "4.0.0")
+
+filegroup(
+    name = "src_local",
+    srcs = glob(["**/*.cpp", "**/*.h", "Makefile"]),
+)
+
+make(
+    name = "verisimplepir",
+    lib_source = "src_local",
+    includes = ["/usr/include"],
+    deps = ["@gsl//:gsl"],
+    visibility = ["//visibility:public"],
+)
