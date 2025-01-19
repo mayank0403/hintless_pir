@@ -230,6 +230,8 @@ absl::StatusOr<HintlessPirResponse> Server::HandleRequest(
     return absl::FailedPreconditionError("Server has not been preprocessed.");
   }
 
+  double start, end;
+  start = currentDateTime();
   HintlessPirResponse response;
   // Handle the LWE part of the request.
   Database::LweVector ct_query_vector =
@@ -239,7 +241,10 @@ absl::StatusOr<HintlessPirResponse> Server::HandleRequest(
   for (auto& ct_record : ct_records) {
     *response.add_ct_records() = SerializeLweCiphertext(ct_record);
   }
+  end = currentDateTime();
+  std::cout << "[==> TIMER  <==] Server-only online D*u time: " << (end-start) << " ms" << std::endl;
 
+  start = currentDateTime();
   // Handle the LinPIR requests.
   int num_linpir_requests = request.linpir_ct_bs_size();
   if (num_linpir_requests != linpir_servers_.size()) {
@@ -252,6 +257,8 @@ absl::StatusOr<HintlessPirResponse> Server::HandleRequest(
                               request.linpir_ct_bs(k), request.linpir_gk_bs()));
     *response.add_linpir_responses() = std::move(linpir_response);
   }
+  end = currentDateTime();
+  std::cout << "[==> TIMER  <==] Server-only online H*s time: " << (end-start) << " ms" << std::endl;
 
   return response;
 }

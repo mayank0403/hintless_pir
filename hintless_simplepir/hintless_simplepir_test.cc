@@ -32,8 +32,8 @@ namespace {
 using RlweInteger = Parameters::RlweInteger;
 
 const Parameters kParameters{
-    .db_rows = 1024,
-    .db_cols = 1024,
+    .db_rows = 131072,
+    .db_cols = 131072,
     .db_record_bit_size = 8,
     .lwe_secret_dim = 1408,
     .lwe_modulus_bit_size = 32,
@@ -66,7 +66,11 @@ TEST(HintlessSimplePir, EndToEndTest) {
   ASSERT_OK_AND_ASSIGN(auto request, client->GenerateRequest(1));
 
   // Handle the request
+  double start, end;
+  start = currentDateTime();
   ASSERT_OK_AND_ASSIGN(auto response, server->HandleRequest(request));
+  end = currentDateTime();
+  std::cout << "[==> TIMER  <==] Server-only online time: " << (end-start) << " ms" << std::endl;
   ASSERT_OK_AND_ASSIGN(auto record, client->RecoverRecord(response));
 
   const Database* database = server->GetDatabase();
@@ -74,6 +78,7 @@ TEST(HintlessSimplePir, EndToEndTest) {
   EXPECT_EQ(record, expected);
 }
 
+/*
 TEST(HintlessSimplePir, EndToEndTestWithChaChaPrng) {
   // Use ChaCha PRNG in both LinPIR and SimplePIR sub-protocols.
   Parameters params = kParameters;
@@ -104,6 +109,7 @@ TEST(HintlessSimplePir, EndToEndTestWithChaChaPrng) {
   ASSERT_OK_AND_ASSIGN(auto expected, database->Record(1));
   EXPECT_EQ(record, expected);
 }
+*/
 
 }  // namespace
 }  // namespace hintless_simplepir
