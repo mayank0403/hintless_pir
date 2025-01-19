@@ -21,6 +21,7 @@
 #include "hintless_simplepir/database_hwy.h"
 #include "hintless_simplepir/parameters.h"
 #include "hintless_simplepir/server.h"
+#include "hintless_simplepir/utils.h"
 #include "linpir/parameters.h"
 #include "shell_encryption/testing/status_testing.h"
 

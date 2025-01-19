@@ -61,6 +61,7 @@ class Database {
   // Updates the hint matrices. This must be called before the database is
   // ready for accepting client queries, or after a new LWE query pad is set.
   absl::Status UpdateHints();
+  absl::Status UpdateHintsFake();
 
   // Returns the products between the data matrices and the query vector, one
   // per shard.
