@@ -65,18 +65,18 @@ TEST(HintlessSimplePir, EndToEndTest) {
   start = currentDateTime();
   ASSERT_OK(server->Preprocess());
   end = currentDateTime();
-  std::cout << "[==> TIMER  <==] Server preprocessing time: " << (end-start) << " ms" << std::endl;
+  std::cout << "[==> TIMER  <==] Server preprocessing time: " << (end-start) << " ms | " << (end-start)/1000 << " sec" << std::endl;
   auto public_params = server->GetPublicParams();
 
   // Create a client and issue request.
   start = currentDateTime();
   ASSERT_OK_AND_ASSIGN(auto client, Client::Create(kParameters, public_params));
   end = currentDateTime();
-  std::cout << "[==> TIMER  <==] Client creation time: " << (end-start) << " ms" << std::endl;
+  std::cout << "[==> TIMER  <==] Client creation time: " << (end-start) << " ms | " << (end-start)/1000 << " sec" << std::endl;
   start = currentDateTime();
   ASSERT_OK_AND_ASSIGN(auto request, client->GenerateRequest(1));
   end = currentDateTime();
-  std::cout << "[==> TIMER  <==] Client request generation time: " << (end-start) << " ms" << std::endl;
+  std::cout << "[==> TIMER  <==] Client request generation time: " << (end-start) << " ms | " << (end-start)/1000 << " sec" << std::endl;
 
   std::cout << "[==> COMM. <==] Client request KB " << (request.ByteSizeLong() / 1024) << std::endl;
 
@@ -85,12 +85,12 @@ TEST(HintlessSimplePir, EndToEndTest) {
   start = currentDateTime();
   ASSERT_OK_AND_ASSIGN(auto response, server->HandleRequest(request));
   end = currentDateTime();
-  std::cout << "[==> TIMER  <==] Server-only online time: " << (end-start) << " ms" << std::endl;
+  std::cout << "[==> TIMER  <==] Server-only online time: " << (end-start) << " ms | " << (end-start)/1000 << " sec" << std::endl;
   std::cout << "[==> COMM. <==] Server response KB " << (response.ByteSizeLong() / 1024) << std::endl;
   start = currentDateTime();
   ASSERT_OK_AND_ASSIGN(auto record, client->RecoverRecord(response));
   end = currentDateTime();
-  std::cout << "[==> TIMER  <==] Client record recovery time: " << (end-start) << " ms" << std::endl;
+  std::cout << "[==> TIMER  <==] Client record recovery time: " << (end-start) << " ms | " << (end-start)/1000 << " sec" << std::endl;
 
   const Database* database = server->GetDatabase();
   ASSERT_OK_AND_ASSIGN(auto expected, database->Record(1));

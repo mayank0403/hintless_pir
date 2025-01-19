@@ -242,7 +242,7 @@ absl::StatusOr<HintlessPirResponse> Server::HandleRequest(
     *response.add_ct_records() = SerializeLweCiphertext(ct_record);
   }
   end = currentDateTime();
-  std::cout << "[==> TIMER  <==] Server-only online D*u time: " << (end-start) << " ms" << std::endl;
+  std::cout << "[==> TIMER  <==] Server-only online D*u time: " << (end-start) << " ms | " << (end-start)/1000 << " sec" << std::endl;
 
   start = currentDateTime();
   // Handle the LinPIR requests.
@@ -258,7 +258,7 @@ absl::StatusOr<HintlessPirResponse> Server::HandleRequest(
     *response.add_linpir_responses() = std::move(linpir_response);
   }
   end = currentDateTime();
-  std::cout << "[==> TIMER  <==] Server-only online H*s time: " << (end-start) << " ms" << std::endl;
+  std::cout << "[==> TIMER  <==] Server-only online H*s time: " << (end-start) << " ms | " << (end-start)/1000 << " sec" << std::endl;
 
   return response;
 }
