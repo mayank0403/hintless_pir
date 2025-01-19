@@ -78,12 +78,15 @@ TEST(HintlessSimplePir, EndToEndTest) {
   end = currentDateTime();
   std::cout << "[==> TIMER  <==] Client request generation time: " << (end-start) << " ms" << std::endl;
 
+  std::cout << "[==> COMM. <==] Client request KB " << (request.ByteSizeLong() / 1024) << std::endl;
+
   // Handle the request
   
   start = currentDateTime();
   ASSERT_OK_AND_ASSIGN(auto response, server->HandleRequest(request));
   end = currentDateTime();
   std::cout << "[==> TIMER  <==] Server-only online time: " << (end-start) << " ms" << std::endl;
+  std::cout << "[==> COMM. <==] Server response KB " << (response.ByteSizeLong() / 1024) << std::endl;
   start = currentDateTime();
   ASSERT_OK_AND_ASSIGN(auto record, client->RecoverRecord(response));
   end = currentDateTime();
