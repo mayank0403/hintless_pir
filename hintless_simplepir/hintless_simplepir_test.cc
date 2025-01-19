@@ -32,8 +32,8 @@ namespace {
 using RlweInteger = Parameters::RlweInteger;
 
 const Parameters kParameters{
-    .db_rows = 131072,
-    .db_cols = 131072,
+    .db_rows = 32768,
+    .db_cols = 32768,
     .db_record_bit_size = 8,
     .lwe_secret_dim = 1408,
     .lwe_modulus_bit_size = 32,
@@ -53,25 +53,41 @@ const Parameters kParameters{
 };
 
 TEST(HintlessSimplePir, EndToEndTest) {
+#ifdef FAKE_RUN
+  std::cout << "\n          ----->>    Fake Run   <<-----           \n" << std::endl;
+#endif
+  double start, end;
   // Create server and fill in random database records.
   ASSERT_OK_AND_ASSIGN(auto server,
                        Server::CreateWithRandomDatabaseRecords(kParameters));
 
   // Preprocess the server and get public parameters.
+  start = currentDateTime();
   ASSERT_OK(server->Preprocess());
+  end = currentDateTime();
+  std::cout << "[==> TIMER  <==] Server preprocessing time: " << (end-start) << " ms" << std::endl;
   auto public_params = server->GetPublicParams();
 
   // Create a client and issue request.
+  start = currentDateTime();
   ASSERT_OK_AND_ASSIGN(auto client, Client::Create(kParameters, public_params));
+  end = currentDateTime();
+  std::cout << "[==> TIMER  <==] Client creation time: " << (end-start) << " ms" << std::endl;
+  start = currentDateTime();
   ASSERT_OK_AND_ASSIGN(auto request, client->GenerateRequest(1));
+  end = currentDateTime();
+  std::cout << "[==> TIMER  <==] Client request generation time: " << (end-start) << " ms" << std::endl;
 
   // Handle the request
-  double start, end;
+  
   start = currentDateTime();
   ASSERT_OK_AND_ASSIGN(auto response, server->HandleRequest(request));
   end = currentDateTime();
   std::cout << "[==> TIMER  <==] Server-only online time: " << (end-start) << " ms" << std::endl;
+  start = currentDateTime();
   ASSERT_OK_AND_ASSIGN(auto record, client->RecoverRecord(response));
+  end = currentDateTime();
+  std::cout << "[==> TIMER  <==] Client record recovery time: " << (end-start) << " ms" << std::endl;
 
   const Database* database = server->GetDatabase();
   ASSERT_OK_AND_ASSIGN(auto expected, database->Record(1));

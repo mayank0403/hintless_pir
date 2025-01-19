@@ -29,7 +29,7 @@
 #include "lwe/types.h"
 
 #ifndef FAKE_RUN
-#define FAKE_RUN
+//#define FAKE_RUN
 #endif
 
 namespace hintless_pir {
