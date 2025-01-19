@@ -175,7 +175,11 @@ absl::Status Server::Preprocess() {
 
   // Make sure the hint is up to date.
   RLWE_RETURN_IF_ERROR(database_->UpdateLweQueryPad(lwe_query_pad_.get()));
+#ifdef FAKE_RUN
+  RLWE_RETURN_IF_ERROR(database_->UpdateHintsFake());
+#else
   RLWE_RETURN_IF_ERROR(database_->UpdateHints());
+#endif
 
   RlweInteger lwe_modulus = RlweInteger{1} << params_.lwe_modulus_bit_size;
   size_t num_shards = database_->NumShards();

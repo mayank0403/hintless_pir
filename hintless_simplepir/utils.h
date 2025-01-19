@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <chrono>
 
 #include "Eigen/Core"
 #include "absl/strings/string_view.h"
@@ -26,6 +27,10 @@
 #include "hintless_simplepir/parameters.h"
 #include "hintless_simplepir/serialization.pb.h"
 #include "lwe/types.h"
+
+#ifndef FAKE_RUN
+#define FAKE_RUN
+#endif
 
 namespace hintless_pir {
 namespace hintless_simplepir {
@@ -156,6 +161,22 @@ inline Integer ConvertModulus(const Integer& x, const Integer& q,
   } else {
     return x % p;
   }
+}
+
+inline double currentDateTime()
+{
+
+    std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+
+    time_t tnow = std::chrono::system_clock::to_time_t(now);
+    tm *date = localtime(&tnow); // todo: dperecated use localtime_s
+    date->tm_hour = 0;
+    date->tm_min = 0;
+    date->tm_sec = 0;
+
+    auto midnight = std::chrono::system_clock::from_time_t(mktime(date));
+
+    return std::chrono::duration<double, std::milli>(now - midnight).count();
 }
 
 }  // namespace hintless_simplepir

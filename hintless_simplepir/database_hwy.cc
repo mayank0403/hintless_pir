@@ -21,6 +21,8 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+#include <ctime>
+#include <iostream>
 
 #include "absl/memory/memory.h"
 #include "absl/status/status.h"
@@ -182,6 +184,23 @@ absl::Status Database::UpdateHints() {
     RLWE_ASSIGN_OR_RETURN(
         hint_matrices_[i],
         MatrixProduct(data_matrices_[i], lwe_matrix, params_.db_rows));
+  }
+  return absl::OkStatus();
+}
+
+absl::Status Database::UpdateHintsFake() {
+  std::cout << "Generating FAKE hint" << std::endl;
+  if (lwe_query_pad_ == nullptr) {
+    return absl::FailedPreconditionError("LWE query pad not set.");
+  }
+  int rows = params_.db_rows;
+  int cols = params_.lwe_secret_dim;
+  for (int i = 0; i < data_matrices_.size(); ++i) {
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < cols; c++) {
+        hint_matrices_[i][r][c] = static_cast<lwe::Integer>(std::rand()) * static_cast<lwe::Integer>(std::rand()); // To ensure result is at 64-bits on all machines
+      }
+    }
   }
   return absl::OkStatus();
 }

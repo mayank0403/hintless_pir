@@ -31,10 +31,10 @@ namespace {
 using RlweInteger = Parameters::RlweInteger;
 
 const Parameters kParameters{
-    .db_rows = 8,
-    .db_cols = 8,
-    .db_record_bit_size = 16,
-    .lwe_secret_dim = 1400,
+    .db_rows = 1024,
+    .db_cols = 1024,
+    .db_record_bit_size = 8,
+    .lwe_secret_dim = 1408,
     .lwe_modulus_bit_size = 32,
     .lwe_plaintext_bit_size = 8,
     .lwe_error_variance = 8,
@@ -91,8 +91,12 @@ TEST(HintlessSimplePir, EndToEndTestWithChaChaPrng) {
   ASSERT_OK_AND_ASSIGN(auto client, Client::Create(params, public_params));
   ASSERT_OK_AND_ASSIGN(auto request, client->GenerateRequest(1));
 
+  double start, end;
+  start = currentDateTime();
   // Handle the request
   ASSERT_OK_AND_ASSIGN(auto response, server->HandleRequest(request));
+  end = currentDateTime();
+  std::cout << "[==> TIMER  <==] Server-only online time: " << (end-start) << " ms" << std::endl;
   ASSERT_OK_AND_ASSIGN(auto record, client->RecoverRecord(response));
 
   const Database* database = server->GetDatabase();
