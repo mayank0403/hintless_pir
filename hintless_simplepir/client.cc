@@ -156,6 +156,120 @@ absl::StatusOr<HintlessPirRequest> Client::GenerateRequest(int64_t index) {
   return request;
 }
 
+absl::StatusOr<std::tuple<lwe::Vector, lwe::SymmetricLweKey>> Client::Compute_A_times_s() {
+  double start, end;
+  start = currentDateTime();
+  // Step 1. Encrypting the selection vector under LWE.
+  lwe::Matrix lwe_pad;
+  std::unique_ptr<rlwe::SecurePrng> lwe_enc_prng;
+  if (params_.prng_type == rlwe::PRNG_TYPE_HKDF) {
+    RLWE_ASSIGN_OR_RETURN(auto pad_prng, rlwe::SingleThreadHkdfPrng::Create(
+                                             prng_seed_lwe_query_pad_));
+    RLWE_ASSIGN_OR_RETURN(
+        lwe_pad, lwe::ExpandPad(params_.db_cols, params_.lwe_secret_dim,
+                                pad_prng.get()));
+    RLWE_ASSIGN_OR_RETURN(std::string prng_seed_enc,
+                          rlwe::SingleThreadHkdfPrng::GenerateSeed());
+    RLWE_ASSIGN_OR_RETURN(lwe_enc_prng,
+                          rlwe::SingleThreadHkdfPrng::Create(prng_seed_enc));
+
+  } else {
+    RLWE_ASSIGN_OR_RETURN(auto pad_prng, rlwe::SingleThreadChaChaPrng::Create(
+                                             prng_seed_lwe_query_pad_));
+    RLWE_ASSIGN_OR_RETURN(
+        lwe_pad, lwe::ExpandPad(params_.db_cols, params_.lwe_secret_dim,
+                                pad_prng.get()));
+    RLWE_ASSIGN_OR_RETURN(std::string prng_seed_enc,
+                          rlwe::SingleThreadChaChaPrng::GenerateSeed());
+    RLWE_ASSIGN_OR_RETURN(lwe_enc_prng,
+                          rlwe::SingleThreadChaChaPrng::Create(prng_seed_enc));
+  }
+  end = currentDateTime();
+  std::cout << "[==> TIMER  <==] Client expanding A from seed time: " << (end-start) << " ms | " << (end-start)/1000 << " sec" << std::endl;
+
+  start = currentDateTime();
+
+  RLWE_ASSIGN_OR_RETURN(
+      lwe::SymmetricLweKey lwe_secret_key,
+      lwe::SymmetricLweKey::Sample(params_.lwe_secret_dim, lwe_enc_prng.get()));
+
+  RLWE_ASSIGN_OR_RETURN(auto As, lwe_secret_key.MultiplySkWithA(lwe_pad));
+  
+  end = currentDateTime();
+  std::cout << "[==> TIMER  <==] Client A*s time: " << (end-start) << " ms | " << (end-start)/1000 << " sec" << std::endl;
+
+  return std::make_tuple(As, lwe_secret_key);
+}
+
+absl::StatusOr<HintlessPirRequest> Client::PrepareLinPirGivenS(lwe::SymmetricLweKey& s_lwe) {
+
+  std::string prng_seed_linpir_sk;
+  if (params_.prng_type == rlwe::PRNG_TYPE_HKDF) {
+    RLWE_ASSIGN_OR_RETURN(prng_seed_linpir_sk,
+                          rlwe::SingleThreadHkdfPrng::GenerateSeed());
+
+  } else {
+    RLWE_ASSIGN_OR_RETURN(prng_seed_linpir_sk,
+                          rlwe::SingleThreadChaChaPrng::GenerateSeed());
+  }
+  
+
+  // Cache the per request state.
+  state_ = ClientState{.row_idx = 0,
+                       .col_idx = 0,
+                       .prng_seed_linpir_sk = std::move(prng_seed_linpir_sk)};
+
+  HintlessPirRequest prepare_request;
+
+  RLWE_RETURN_IF_ERROR(
+      GenerateLinPirRequestInPlace(prepare_request, s_lwe.Key()));
+
+  return prepare_request;
+}
+
+absl::StatusOr<std::pair<HintlessPirRequest, lwe::Vector>> Client::GenerateRequestGivenAsSkipLinPir(int64_t index, lwe::Vector& As, lwe::SymmetricLweKey& s_lwe) {
+  if (index < 0 || index >= params_.db_rows * params_.db_cols) {
+    return absl::InvalidArgumentError("`index` out of range.");
+  }
+
+  // Step 1. Encrypting the selection vector under LWE.
+  std::unique_ptr<rlwe::SecurePrng> lwe_enc_prng;
+  if (params_.prng_type == rlwe::PRNG_TYPE_HKDF) {
+    RLWE_ASSIGN_OR_RETURN(std::string prng_seed_enc,
+                          rlwe::SingleThreadHkdfPrng::GenerateSeed());
+    RLWE_ASSIGN_OR_RETURN(lwe_enc_prng,
+                          rlwe::SingleThreadHkdfPrng::Create(prng_seed_enc));
+
+  } else {
+    RLWE_ASSIGN_OR_RETURN(std::string prng_seed_enc,
+                          rlwe::SingleThreadChaChaPrng::GenerateSeed());
+    RLWE_ASSIGN_OR_RETURN(lwe_enc_prng,
+                          rlwe::SingleThreadChaChaPrng::Create(prng_seed_enc));
+  }
+
+  // Choosing the largest scaling factor that supports our plaintext space
+  int log_scaling_factor =
+      params_.lwe_modulus_bit_size - params_.lwe_plaintext_bit_size;
+
+  // Plaintext is a selection vector for col_idx
+  int64_t row_idx = index / params_.db_cols;
+  int64_t col_idx = index % params_.db_cols;
+  lwe::Vector query_vector = lwe::Vector::Zero(params_.db_cols);
+  query_vector[col_idx] = 1;
+
+  RLWE_RETURN_IF_ERROR(s_lwe.EncryptFromPadInPlaceGivenAs(
+      query_vector, As, log_scaling_factor, lwe_enc_prng.get()));
+
+  // Cache the per request state.
+  state_.row_idx = row_idx;
+  state_.col_idx = col_idx;
+
+  HintlessPirRequest request;
+  *request.mutable_ct_query_vector() = SerializeLweCiphertext(query_vector);
+
+  return std::make_pair(request, query_vector);
+}
+
 absl::Status Client::GenerateLinPirRequestInPlace(
     HintlessPirRequest& request, const lwe::Vector& lwe_secret) const {
   if (linpir_clients_.empty()) {
@@ -237,6 +351,53 @@ absl::StatusOr<std::string> Client::RecoverRecord(
   }
 
   return ReconstructRecord(values, params_);
+}
+
+absl::StatusOr<std::string> Client::RecoverRecordGivenHs(
+    const HintlessPirResponse& response, const std::vector<lwe::Vector>& decryption_parts) {
+  int num_shards =
+      DivAndRoundUp(params_.db_record_bit_size, params_.lwe_plaintext_bit_size);
+  if (response.ct_records_size() != num_shards) {
+    return absl::InvalidArgumentError("`response` has incorrect size.");
+  }
+
+  // Decrypt the LWE ciphertexts in response.
+  std::vector<lwe::Integer> values;
+  values.reserve(response.ct_records_size());
+  for (int i = 0; i < response.ct_records_size(); ++i) {
+    std::vector<lwe::Integer> ct_records =
+        DeserializeLweCiphertext(response.ct_records(i));
+    if (ct_records.size() != params_.db_rows) {
+      return absl::InvalidArgumentError(absl::StrCat(
+          "The server response has incorrect dimension; got ",
+          ct_records.size(), " but expecting ", params_.db_rows, "."));
+    }
+
+    // Remove hint * s from the server response, which gives us \Delta * m + e.
+    lwe::Vector noisy_plaintext{{ct_records[state_.row_idx]}};
+    noisy_plaintext[0] -= decryption_parts[i][state_.row_idx];
+
+    // Remove the error e.
+    int log_scaling_factor =
+        params_.lwe_modulus_bit_size - params_.lwe_plaintext_bit_size;
+    RLWE_RETURN_IF_ERROR(
+        lwe::RemoveErrorInPlace(noisy_plaintext, log_scaling_factor));
+
+    // Extracting the coefficient from the 1 x 1 matrix noisy_plaintext.
+    values.push_back(noisy_plaintext.eval()(0));
+  }
+
+  return ReconstructRecord(values, params_);
+}
+
+absl::StatusOr<std::vector<lwe::Vector>> Client::RecoverHsPreparePhase(
+    const HintlessPirResponse& response) {
+  // Recover decryption_parts = Hint * LWE secret = Database * A * LWE secret.
+  RLWE_ASSIGN_OR_RETURN(std::vector<lwe::Vector> decryption_parts,
+                        RecoverLweDecryptionParts(response));
+
+  std::cout << "H*s recovered from RLWE" << std::endl;
+  return decryption_parts;
 }
 
 absl::StatusOr<std::vector<lwe::Vector>> Client::RecoverLweDecryptionParts(

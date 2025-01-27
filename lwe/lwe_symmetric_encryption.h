@@ -163,6 +163,37 @@ class SymmetricLweKey {
     return absl::OkStatus();
   }
 
+  template <typename Prng = rlwe::SingleThreadHkdfPrng>
+  absl::Status EncryptFromPadInPlaceGivenAs(Vector& plaintext, Vector& As,
+                                     const int log_scaling_factor,
+                                     Prng* prng) const {
+    if (prng == nullptr) {
+      return absl::InvalidArgumentError("The prng must not be null");
+    } else if (log_scaling_factor < 0 || log_scaling_factor > kIntBitwidth) {
+      return absl::InvalidArgumentError(
+          absl::StrCat("The log scaling factor, ", log_scaling_factor,
+                       ", should be >= 0 and <= ", kIntBitwidth));
+    } else if (plaintext.size() != As.size()) {
+      return absl::InvalidArgumentError(absl::StrCat(
+          "The plaintext size, ", plaintext.size(),
+          ", does not match the number of rows of the pad, ", As.size()));
+    }
+    // Encodes the vector
+    RLWE_RETURN_IF_ERROR(EncodeMessageInPlace(plaintext, log_scaling_factor));
+    // Samples the Centered binomial and adds it to the (encoded) plaintext
+    RLWE_RETURN_IF_ERROR(SampleAndAddCenteredBinomialInPlace(plaintext, prng));
+    // Adds pad * s to the encoded vector \Delta * m + e
+    plaintext += As;
+    return absl::OkStatus();
+  }
+
+  template <typename Prng = rlwe::SingleThreadHkdfPrng>
+  absl::StatusOr<Vector> MultiplySkWithA(const Matrix& pad) const {
+    
+    auto res = pad * key_;
+    return res;
+  }
+
   // Encrypts the plaintext using learning-with-errors (LWE) encryption.
   // Takes the matrix `pad` as input, and returns the ciphertext.
   // Defers validating inputs to EncryptFromPadInPlace.

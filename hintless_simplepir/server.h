@@ -55,6 +55,12 @@ class Server {
   absl::StatusOr<HintlessPirResponse> HandleRequest(
       const HintlessPirRequest& request);
 
+  absl::StatusOr<HintlessPirResponse> HandlePrepareRequest(
+    const HintlessPirRequest& request);
+
+  absl::StatusOr<HintlessPirResponse> HandleRequestSkipLinPir(
+    const HintlessPirRequest& request);
+
   // Returns the server's public parameters that are sent to the client.
   HintlessPirServerPublicParams GetPublicParams() const;
 

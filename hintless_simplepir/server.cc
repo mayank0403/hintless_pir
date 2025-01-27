@@ -263,6 +263,54 @@ absl::StatusOr<HintlessPirResponse> Server::HandleRequest(
   return response;
 }
 
+absl::StatusOr<HintlessPirResponse> Server::HandlePrepareRequest(
+    const HintlessPirRequest& request) {
+  if (!IsPreprocessed()) {
+    return absl::FailedPreconditionError("Server has not been preprocessed.");
+  }
+  HintlessPirResponse response;
+
+  // Handle the LinPIR requests.
+  int num_linpir_requests = request.linpir_ct_bs_size();
+  if (num_linpir_requests != linpir_servers_.size()) {
+    return absl::InvalidArgumentError(
+        "`request` contains unexpected number of LinPir requests.");
+  }
+  for (int k = 0; k < num_linpir_requests; ++k) {
+    //std::cout<<"LinPir handle request"<<std::endl;
+    RLWE_ASSIGN_OR_RETURN(LinPirResponse linpir_response,
+                          linpir_servers_[k]->HandleRequest(
+                              request.linpir_ct_bs(k), request.linpir_gk_bs()));
+    *response.add_linpir_responses() = std::move(linpir_response);
+  }
+
+  return response;
+}
+
+absl::StatusOr<HintlessPirResponse> Server::HandleRequestSkipLinPir(
+    const HintlessPirRequest& request) {
+  if (!IsPreprocessed()) {
+    return absl::FailedPreconditionError("Server has not been preprocessed.");
+  }
+
+  HintlessPirResponse response;
+  // Handle the LWE part of the request.
+  
+  Database::LweVector ct_query_vector =
+      DeserializeLweCiphertext(request.ct_query_vector());
+  
+  std::cout<<"Generic Inner product LWE"<<std::endl;
+  RLWE_ASSIGN_OR_RETURN(std::vector<Database::LweVector> ct_records,
+                        database_->InnerProductWith(ct_query_vector));
+  
+  //std::cout<<"Ser LWE ciphertext"<<std::endl;
+  for (auto& ct_record : ct_records) {
+    *response.add_ct_records() = SerializeLweCiphertext(ct_record);
+  }
+
+  return response;
+}
+
 HintlessPirServerPublicParams Server::GetPublicParams() const {
   HintlessPirServerPublicParams output;
   output.set_prng_seed_lwe_query_pad(prng_seed_lwe_query_pad_);

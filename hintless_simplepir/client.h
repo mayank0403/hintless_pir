@@ -29,6 +29,7 @@
 #include "hintless_simplepir/serialization.pb.h"
 #include "linpir/client.h"
 #include "lwe/types.h"
+#include "lwe/lwe_symmetric_encryption.h"
 #include "shell_encryption/montgomery.h"
 #include "shell_encryption/rns/rns_context.h"
 #include "shell_encryption/rns/rns_modulus.h"
@@ -48,9 +49,21 @@ class Client {
   // Returns the request for accessing database[index].
   absl::StatusOr<HintlessPirRequest> GenerateRequest(int64_t index);
 
+  absl::StatusOr<std::tuple<lwe::Vector, lwe::SymmetricLweKey>> Compute_A_times_s();
+
+  absl::StatusOr<std::pair<HintlessPirRequest, lwe::Vector>> GenerateRequestGivenAsSkipLinPir(int64_t index, lwe::Vector& As, lwe::SymmetricLweKey& s_lwe);
+
+  absl::StatusOr<HintlessPirRequest> PrepareLinPirGivenS(lwe::SymmetricLweKey& s_lwe);
+
   // Returns the retrieved record from the server response.
   absl::StatusOr<std::string> RecoverRecord(
       const HintlessPirResponse& response);
+
+  absl::StatusOr<std::string> RecoverRecordGivenHs(
+    const HintlessPirResponse& response, const std::vector<lwe::Vector>& decryption_parts);
+
+  absl::StatusOr<std::vector<lwe::Vector>> RecoverHsPreparePhase(
+    const HintlessPirResponse& response);
 
  private:
   using RlweInteger = Parameters::RlweInteger;
@@ -94,6 +107,8 @@ class Client {
   // with the LinPir requests.
   absl::Status GenerateLinPirRequestInPlace(
       HintlessPirRequest& request, const lwe::Vector& lwe_secret) const;
+
+  
 
   // CRT interpolates the LinPir responses to recover the LWE decryption parts,
   // which are the inner products hint * LWE secrets.
