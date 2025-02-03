@@ -1,0 +1,75 @@
+HintlessSimplePIR Experiment Summary
+Run at: 2025-02-03 02:13:56
+
+
+Configuration 1:
+Rows: 4096
+Cols: 2048
+Metrics:
+  Global Prepr (S): 4.98602
+  Client Prepa Pre Req (s): 0.14584
+  Server Prepa Comp (s): 0.319848
+  Client Prepa Post Req (s): 0.00841794
+  Query: Client Req Gen (ms): 0.161534
+  Query: Server Comp (s): 0.000962792
+  Query: Client Decryption (ms): 0.004669
+  Hints (MiB): 22.0
+  Online State (KiB): 1137.0
+  Prep Up (Kib): 360.0
+  Prep Down (KiB): 720.0
+  Query Up (KiB): 9.0
+  Query Down (KiB): 19.0
+
+Configuration 2:
+Rows: 16384
+Cols: 16384
+Metrics:
+  Global Prepr (S): 62.3982
+  Client Prepa Pre Req (s): 1.21287
+  Server Prepa Comp (s): 0.452159
+  Client Prepa Post Req (s): 0.0332358
+  Query: Client Req Gen (ms): 0.772471
+  Query: Server Comp (s): 0.0369989
+  Query: Client Decryption (ms): 0.01347
+  Hints (MiB): 88.0
+  Online State (KiB): 3531.0
+  Prep Up (Kib): 360.0
+  Prep Down (KiB): 2881.0
+  Query Up (KiB): 78.0
+  Query Down (KiB): 79.0
+
+Configuration 3:
+Rows: 32768
+Cols: 16384
+Metrics:
+  Global Prepr (S): 122.732
+  Client Prepa Pre Req (s): 1.19396
+  Server Prepa Comp (s): 0.600722
+  Client Prepa Post Req (s): 0.0664857
+  Query: Client Req Gen (ms): 0.77103
+  Query: Server Comp (s): 0.0744718
+  Query: Client Decryption (ms): 0.018965
+  Hints (MiB): 176.0
+  Online State (KiB): 6554.0
+  Prep Up (Kib): 360.0
+  Prep Down (KiB): 5762.0
+  Query Up (KiB): 78.0
+  Query Down (KiB): 157.0
+
+Configuration 4:
+Rows: 32768
+Cols: 32768
+Metrics:
+  Global Prepr (S): 229.085
+  Client Prepa Pre Req (s): 3.2435
+  Server Prepa Comp (s): 0.603931
+  Client Prepa Post Req (s): 0.0656158
+  Query: Client Req Gen (ms): 1.47245
+  Query: Server Comp (s): 0.146842
+  Query: Client Decryption (ms): 0.021722
+  Hints (MiB): 176.0
+  Online State (KiB): 6698.0
+  Prep Up (Kib): 360.0
+  Prep Down (KiB): 5762.0
+  Query Up (KiB): 157.0
+  Query Down (KiB): 158.0

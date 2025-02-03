@@ -124,6 +124,11 @@ cc_test(
         "@com_google_absl//absl/strings:string_view",
     ],
 )
+cc_library(
+    name = "benchmark_parameters",
+    hdrs = ["benchmark_parameters.h"],
+    visibility = ["//visibility:public"],
+)
 
 # Hintless SimplePIR database and the preprocessed hint states
 cc_library(
@@ -378,6 +383,7 @@ cc_test(
         ":client",
         ":database_hwy",
         ":parameters",
+        ":benchmark_parameters",
         ":server",
         "//linpir:parameters",
         "//lwe:types",

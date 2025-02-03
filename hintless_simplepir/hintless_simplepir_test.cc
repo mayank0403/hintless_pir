@@ -25,6 +25,7 @@ using namespace std;
 #include "hintless_simplepir/parameters.h"
 #include "hintless_simplepir/server.h"
 #include "hintless_simplepir/utils.h"
+#include "hintless_simplepir/benchmark_parameters.h"
 #include "linpir/parameters.h"
 #include "shell_encryption/testing/status_testing.h"
 
@@ -35,8 +36,8 @@ namespace {
 using RlweInteger = Parameters::RlweInteger;
 
 const Parameters kParameters{
-    .db_rows = 1024,
-    .db_cols = 1024,
+    .db_rows = DB_ROWS,
+    .db_cols = DB_COLS,
     .db_record_bit_size = 8,
     .lwe_secret_dim = 1408,
     .lwe_modulus_bit_size = 32,
@@ -113,7 +114,8 @@ TEST(HintlessSimplePir, EndToEndTest) {
   std::cout << "[==> TIMER  <==] Server preprocessing time: " << (end-start) << " ms | " << (end-start)/1000 << " sec" << std::endl;
   dict[GLOBAL_PREPR_S] += (end-start)/1000;
   auto public_params = server->GetPublicParams();
-
+  std::cout << "DB Rows: " << kParameters.db_rows << std::endl;
+  std::cout << "DB Cols: " << kParameters.db_cols << std::endl;
   const Database* database = server->GetDatabase();
   auto H_vec = database->Hints();
   int shards = database->NumShards();
