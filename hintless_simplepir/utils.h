@@ -28,9 +28,9 @@
 #include "hintless_simplepir/serialization.pb.h"
 #include "lwe/types.h"
 
-#ifndef FAKE_RUN
-//#define FAKE_RUN
-#endif
+// #ifndef FAKE_RUN
+// #define FAKE_RUN
+// #endif
 
 namespace hintless_pir {
 namespace hintless_simplepir {

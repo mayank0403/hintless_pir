@@ -1,0 +1,98 @@
+HintlessSimplePIR Experiment Summary
+Run at: 2025-02-06 02:58:59
+
+
+Configuration 1:
+Rows: 4096
+Cols: 2048
+Metrics:
+  Client A Expansion (s): 0.13118
+  Global Prepr (S): 4.97887
+  Client Prepa Pre Req (s): 0.146225
+  Server Prepa Comp (s): 0.320178
+  Client Prepa Post Req (s): 0.00831758
+  Query: Client Req Gen (ms): 0.157383
+  Query: Server Comp (s): 0.000912328
+  Query: Client Decryption (ms): 0.003282
+  Hints (MiB): 22.0
+  Online State (KiB): 1137.0
+  Prep Up (Kib): 360.0
+  Prep Down (KiB): 720.0
+  Query Up (KiB): 9.0
+  Query Down (KiB): 19.0
+
+Configuration 2:
+Rows: 16384
+Cols: 16384
+Metrics:
+  Client A Expansion (s): 1.66711
+  Global Prepr (S): 63.1139
+  Client Prepa Pre Req (s): 1.69553
+  Server Prepa Comp (s): 0.450664
+  Client Prepa Post Req (s): 0.0332965
+  Query: Client Req Gen (ms): 0.773493
+  Query: Server Comp (s): 0.0372372
+  Query: Client Decryption (ms): 0.012964
+  Hints (MiB): 88.0
+  Online State (KiB): 3532.0
+  Prep Up (Kib): 360.0
+  Prep Down (KiB): 2881.0
+  Query Up (KiB): 79.0
+  Query Down (KiB): 79.0
+
+Configuration 3:
+Rows: 32768
+Cols: 16384
+Metrics:
+  Client A Expansion (s): 1.09806
+  Global Prepr (S): 124.392
+  Client Prepa Pre Req (s): 1.12378
+  Server Prepa Comp (s): 0.600412
+  Client Prepa Post Req (s): 0.0648994
+  Query: Client Req Gen (ms): 0.770153
+  Query: Server Comp (s): 0.0741692
+  Query: Client Decryption (ms): 0.021489
+  Hints (MiB): 176.0
+  Online State (KiB): 6555.0
+  Prep Up (Kib): 360.0
+  Prep Down (KiB): 5762.0
+  Query Up (KiB): 79.0
+  Query Down (KiB): 157.0
+
+Configuration 4:
+Rows: 32768
+Cols: 32768
+Metrics:
+  Client A Expansion (s): 3.71286
+  Global Prepr (S): 231.259
+  Client Prepa Pre Req (s): 3.75614
+  Server Prepa Comp (s): 0.618586
+  Client Prepa Post Req (s): 0.0651228
+  Query: Client Req Gen (ms): 1.46847
+  Query: Server Comp (s): 0.148851
+  Query: Client Decryption (ms): 0.016463
+  Hints (MiB): 176.0
+  Online State (KiB): 6698.0
+  Prep Up (Kib): 360.0
+  Prep Down (KiB): 5762.0
+  Query Up (KiB): 157.0
+  Query Down (KiB): 158.0
+
+Configuration 5:
+Rows: 131072
+Cols: 65536
+Metrics:
+  Client A Expansion (s): 4.8267
+  Global Prepr (S): 1753.87
+  Client Prepa Pre Req (s): 4.89403
+  Server Prepa Comp (s): 1.65136
+  Client Prepa Post Req (s): 0.265358
+  Query: Client Req Gen (ms): 2.88053
+  Query: Server Comp (s): 1.19461
+  Query: Client Decryption (ms): 0.089435
+  Hints (MiB): 704.0
+  Online State (KiB): 25131.0
+  Prep Up (Kib): 360.0
+  Prep Down (KiB): 23051.0
+  Query Up (KiB): 315.0
+  Query Down (KiB): 632.0

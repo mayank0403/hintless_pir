@@ -1,0 +1,88 @@
+exec ${PAGER:-/usr/bin/less} "$0" || exit 1
+Executing tests from //hintless_simplepir:hintless_simplepir_test
+-----------------------------------------------------------------------------
+Running main() from gmock_main.cc
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from HintlessSimplePir
+[ RUN      ] HintlessSimplePir.EndToEndTest
+
+          ----->>    Fake Run   <<-----           
+
+Generating FAKE hint
+[==> TIMER  <==] Server preprocessing time: 85207.5 ms | 85.2075 sec
+DB Rows: 131072
+DB Cols: 131072
+[==> TIMER  <==] Client creation time: 5.6849 ms | 0.0056849 sec
+[==> TIMER  <==] Client expanding A from seed time: 13520.9 ms | 13.5209 sec
+[==> TIMER  <==] Client A*s time: 107.015 ms | 0.107015 sec
+[==> TIMER  <==] Client prepare req gen time: 13.1887 ms | 0.0131887 sec
+[==> COMM. <==] Client prepare request KB 360
+[ONLINE PREPARE STATE]: Client prepare request (rotation keys, RLWE cipher of s_lwe) size 360 KB
+[==> TIMER  <==] Server prepare response time (LinPir H*s compute time): 1691.34 ms | 1.69134 sec
+[==> COMM. <==] Server prepare response KB 23051
+[ONLINE PREPARE STATE]: Client prepare response from server (Hs) size 23051 KB
+H*s recovered from RLWE
+[==> TIMER  <==] Client prepare recover time (LinPir response decryption): 265.42 ms | 0.26542 sec
+[ONLINE STATE]: Size of decrypted H*s (i.e. w) 512 KB
+[==> TIMER  <==] Prepare phase total (client + server) time: 15598.2 ms | 15.5982 sec
+----------------------------------
+[==> TIMER  <==] Client online request generation time (skipped LinPir): 5.72188 ms | 0.00572188 sec
+[==> COMM. <==] Client online request (LWE only) KB 632
+[ONLINE STATE]: Client request (LWE query only) size 632 KB
+Generic Inner product LWE
+Request handled
+[==> TIMER  <==] Server-only Online time (only D*u): 2380.47 ms | 2.38047 sec
+[==> COMM. <==] Server response (skipped LinPir) KB 631
+[ONLINE STATE]: Client response from server (Du) size 631 KB
+[==> TIMER  <==] Client record recovery time (given Hs already): 0.066574 ms | 6.6574e-05 sec
+[==> TIMER  <==] Online-only (w/o prepare) phase total (client + server) time: 2387.09 ms | 2.38709 sec
+hintless_simplepir/hintless_simplepir_test.cc:220: Failure
+Expected equality of these values:
+  record
+    Which is: "&"
+  expected
+    Which is: "k"
+-------- Running online phase directly as well ---------
+[==> TIMER  <==] Client request generation time: 13385.8 ms | 13.3858 sec
+[==> COMM. <==] Client request KB 992
+[==> TIMER  <==] Server-only online D*u time: 2374.47 ms | 2.37447 sec
+[==> TIMER  <==] Server-only online H*s time: 1669.04 ms | 1.66904 sec
+[==> TIMER  <==] Server-only online time: 4043.58 ms | 4.04358 sec
+[==> COMM. <==] Server response KB 23683
+[==> TIMER  <==] Client record recovery time: 265.397 ms | 0.265397 sec
+hintless_simplepir/hintless_simplepir_test.cc:250: Failure
+Expected equality of these values:
+  record_direct
+    Which is: "A"
+  expected
+    Which is: "k"
+-----------------------------
+Client Prepa Post Req (s) : 0.26542
+Client Prepa Pre Req (s) : 13.6412
+Direct ~ Client Query Gen (ms) : 13385.8
+Direct ~ Client Record Rec (ms) : 265.397
+Direct ~ Down (KiB) : 23683
+Direct ~ Server Response (s) : 4.04358
+Direct ~ Up (KiB) : 992
+Global Prepr (S) : 85.2075
+Hints (MiB) : 704
+Online State (KiB) : 25703
+Prep Down (KiB) : 23051
+Prep Up (Kib) : 360
+Query Down (KiB) : 631
+Query Up (KiB) : 632
+Query: Client Decryption (ms) : 0.066574
+Query: Client Req Gen (ms) : 5.72188
+Query: Server Comp (s) : 2.38047
+Server Prepa Comp (s) : 1.69134
+[  FAILED  ] HintlessSimplePir.EndToEndTest (270272 ms)
+[----------] 1 test from HintlessSimplePir (270272 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (270272 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] HintlessSimplePir.EndToEndTest
+
+ 1 FAILED TEST

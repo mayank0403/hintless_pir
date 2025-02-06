@@ -1,0 +1,15 @@
+Parsed Metrics:
+Client A Expansion (s): 0.13118
+Global Prepr (S): 4.97887
+Client Prepa Pre Req (s): 0.146225
+Server Prepa Comp (s): 0.320178
+Client Prepa Post Req (s): 0.00831758
+Query: Client Req Gen (ms): 0.157383
+Query: Server Comp (s): 0.000912328
+Query: Client Decryption (ms): 0.003282
+Hints (MiB): 22.0
+Online State (KiB): 1137.0
+Prep Up (Kib): 360.0
+Prep Down (KiB): 720.0
+Query Up (KiB): 9.0
+Query Down (KiB): 19.0
